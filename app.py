@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 from repository.database import db
+from db_models.payment import Payment
 
 app = Flask(__name__)
 
