@@ -1,4 +1,5 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
+from datetime import datetime, timedelta
 from repository.database import db
 from db_models.payment import Payment
 
@@ -11,7 +12,20 @@ db.init_app(app)
 
 @app.route('/payments/pix', methods=['POST'])
 def create_pix_payment():
-    return jsonify({'message': 'Pix payment created successfully'}), 201
+    data = request.get_json()
+
+    if 'amount' not in data:
+        return jsonify({'message': 'Amount is required'}), 400
+    
+    expiration_date = datetime.now() + timedelta(minutes=10)
+    
+    new_payment = Payment(amount=data['amount'], expiration_date=expiration_date)
+
+    db.session.add(new_payment)
+    db.session.commit()
+
+    return jsonify({'message': 'Pix payment created successfully',
+                    'payment': new_payment.to_dict()}), 201
 
 @app.route('/payments/pix/confirm', methods=['POST'])
 def confirm_pix_payment():
