@@ -66,7 +66,7 @@ def get_pix_payment(payment_id):
     payment = Payment.query.get(payment_id)
 
     if not payment:
-        return jsonify({'message': 'Payment not found'}), 404
+        return render_template('404.html')
 
     if payment.paid:
         return render_template('confirmed_payment.html', 
