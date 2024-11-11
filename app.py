@@ -44,7 +44,16 @@ def confirm_pix_payment():
 
 @app.route('/payments/pix/<int:payment_id>', methods=['GET'])
 def get_pix_payment(payment_id):
-    return render_template('payment.html')
+    payment = Payment.query.get(payment_id)
+
+    if not payment:
+        return jsonify({'message': 'Payment not found'}), 404
+
+    return render_template('payment.html', 
+                           payment_id=payment_id, 
+                           amount=payment.amount, 
+                           host="http://127.0.0.1:5000", 
+                           qr_code=payment.qr_code)
 
 
 if __name__ == '__main__':
