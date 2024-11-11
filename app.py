@@ -57,6 +57,7 @@ def confirm_pix_payment():
 
     payment.paid = True
     db.session.commit()
+    socketio.emit(f'payment_confirmed_{payment.id}', payment.to_dict())
 
     return jsonify({'message': 'Pix payment confirmed successfully'}), 200
 
@@ -67,6 +68,13 @@ def get_pix_payment(payment_id):
     if not payment:
         return jsonify({'message': 'Payment not found'}), 404
 
+    if payment.paid:
+        return render_template('confirmed_payment.html', 
+                               payment_id=payment_id, 
+                               amount=payment.amount, 
+                               host="http://127.0.0.1:5000", 
+                               qr_code=payment.qr_code)
+    
     return render_template('payment.html', 
                            payment_id=payment_id, 
                            amount=payment.amount, 
