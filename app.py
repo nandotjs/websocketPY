@@ -42,6 +42,22 @@ def get_qrcode(file_name):
 
 @app.route('/payments/pix/confirm', methods=['POST'])
 def confirm_pix_payment():
+    data = request.get_json()
+
+    if 'bank_payment_id' not in data or 'amount' not in data:
+        return jsonify({'message': 'Invalid payment data'}), 400
+
+    payment = Payment.query.filter_by(bank_payment_id=data['bank_payment_id']).first()
+
+    if not payment or payment.paid:
+        return jsonify({'message': 'Payment not found or already paid'}), 404
+    
+    if data.get('amount') != payment.amount:
+        return jsonify({'message': 'Invalid payment data'}), 400
+
+    payment.paid = True
+    db.session.commit()
+
     return jsonify({'message': 'Pix payment confirmed successfully'}), 200
 
 @app.route('/payments/pix/<int:payment_id>', methods=['GET'])
